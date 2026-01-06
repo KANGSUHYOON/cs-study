@@ -17,9 +17,9 @@
 ## 나의 아이디어
 > 1. 문자열 입력 -> 공백으로 단어구분(반복문으로 " " 찾기) -> 단어 개수만큼 카운트
 > 2. 단어가 4개일 시 공백의 경우의 수
-> > ' 'word' 'word' 'word' 'word' '
-> > ' 'word' 'word' 'word' 'word
-> > word' 'word' 'word' 'word' '
+> > ' 'word' 'word' 'word' 'word' '<br>
+> > ' 'word' 'word' 'word' 'word <br>
+> > word' 'word' 'word' 'word' ' <br>
 > > word' 'word' 'word' 'word
 > 3. 공백의 앞, 뒤로 단어가 있을 경우 하나로 카운트 하면 되나?   
 
