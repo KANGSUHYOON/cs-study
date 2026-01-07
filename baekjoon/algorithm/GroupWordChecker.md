@@ -57,7 +57,7 @@ int main() {
 
   int count = 0;
 
-  for (int t = 0; t < N; t++) {
+  for (int t = 0; t < n; t++) {
     string s;
     cin >> s;
 
