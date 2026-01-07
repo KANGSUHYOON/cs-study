@@ -20,4 +20,4 @@
 - 상태 관리 (visited 배열)
 - 조건 분기와 반복 흐름 제어
 - C++ bool 조건식과 break의 동작 방식
-- > [1316 - 그룹 단어 체커](./baekjoon./algorithm./GroupWordChecker.md)
+- > [1316 - 그룹 단어 체커](../baekjoon/algorithm/GroupWordChecker.md)
