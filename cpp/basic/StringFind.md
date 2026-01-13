@@ -14,7 +14,7 @@ int pos = s.find("e");   // pos == 1
 ```
 ### 문자 하나 찾기
 ```cpp
-int pos = s.find('1');    // pos == 2
+int pos = s.find('l');    // pos == 2
 ```
 
 ## 3. 찾았는지 확인하는 방법
