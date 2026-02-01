@@ -96,6 +96,6 @@ void function(int A[], int N {...} // 사실상 똑같다
 - 포인터는 "주소"라서 `B = A;`하면 값 복사가 아니라 **같은 곳을 가리킨다**
 4. nullptr은 **아무것도 안 가리킨다**
 ```cpp
-int* p = nullptrl;
+int* p = nullptr;
 ```
 - 안전한 초기화 방법이다
