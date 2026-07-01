@@ -1,1 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
+  <body>
+    <div class="container">
+      <h1>오늘의 공부</h1>
+
+      <div class="add-box">
+        <input
+          type="text"
+          id="newTask"
+          placeholder="할 일을 입력하세요"
+        />
+        <button id="addBtn">추가</button>
+      </div>
+
+      <div class="todo-box" id="todoList">
+        <!-- 서버에서 가져온 Todo 목록이 여기에 생성됨 -->
+      </div>
+
+      <p id="progress">진행률: 0%</p>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
