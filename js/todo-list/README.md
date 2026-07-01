@@ -1,47 +1,61 @@
-# JS Todo List (DOM Practice)
+# Study Todo Dashboard
 
-## ⭐목표
-- JavaScript DOM 조작 연습
-- 이벤트 처리(addEventListner) 연습
+브라우저의 Todo 화면과 Node.js/Express 서버를 연결해 CRUD 중 Create, Read, Update를 구현한 학습 프로젝트입니다.
+
+## 구현 기능
+
+- `GET /todos`: 전체 Todo 조회
+- `POST /todos`: 새로운 Todo 생성
+- `PATCH /todos/:id`: 완료 상태 수정
+- 빈 제목 및 잘못된 자료형 검증
+- 서버 응답에 따른 동적 화면 렌더링
 - 체크 상태 기반 진행률 계산
+- Enter 키를 이용한 Todo 추가
+- CORS 설정을 통한 프론트엔드·백엔드 연결
 
----
+## 실행 방법
 
-## ⚙️구현 기능
+### 백엔드
 
-### 1) 진행률 표시 (Progress)
-- 체크된 항목 수 / 전체 항목 수로 퍼센트 계산
-- `Math.round()`로 반올림하여 표시
+```bash
+cd study-todo-api
+npm install
+npm start
+```
 
-**핵심 로직**
-- checked 개수 세기 -> percent 계산 -> 텍스트 업데이트
+서버는 `http://localhost:3000`에서 실행됩니다.
 
----
-### 2) 체크박스 변경 시 자동 업데이트
-- 각 체크박스에 `change` 이벤트 연결
-- 체크/해제 할 때마다 진행률 자동 갱신
+### 프론트엔드
 
----
+VS Code Live Server로 `index.html`을 실행합니다.
 
-### 3) 할 일 추가 (Add Task)
-- input에서 텍스트를 읽어옴
-- label + checkbox를 만들어 DOM에 추가
+## 요청 흐름
 
----
+```text
+사용자 조작
+→ JavaScript 이벤트
+→ fetch() HTTP 요청
+→ Express 라우터
+→ 서버 데이터 조회/변경
+→ JSON 응답
+→ 화면 렌더링 및 진행률 갱신
+```
 
-## 📘배운 점 / ⚠️주의할 점
+## 배운 개념
 
-### NodeList는 "고정"일 수 있다
-- `querySelectorAll()` 결과가 새로 생긴 요소를 자동 반영하지 않을 수 있다.
-- 해결:
-- - `updateProgress()` 내부에서 매번 `.task`를 다시 선택하거나
-  - 새로 생성한 체크박스에 이벤트를 직접 붙이기
+- 클라이언트와 서버의 역할
+- HTTP 메서드 GET, POST, PATCH
+- `async` / `await`
+- `fetch()`와 JSON 요청·응답
+- `req.body`, `req.params`
+- HTTP 상태 코드 200, 201, 400, 404
+- 입력값 검증과 예외 처리
+- DOM 생성 및 이벤트 처리
 
+## 다음 단계
 
----
-
-## ⏭️다음에 추가할 기능 (TODO)
-- [ ] Enter 키로 할 일 추가
-- [ ] 추가 후 input 자동 비우기
-- [ ] 완료 항목 줄긋기 스타일 적용
-- [ ] LocalStorage 저장/불러오기
+- [ ] `DELETE /todos/:id` 구현
+- [ ] 중복되지 않는 ID 생성 방식 적용
+- [ ] MySQL 연동
+- [ ] 공통 오류 처리 구조 작성
+- [ ] 배포 환경에 맞춘 CORS 제한
