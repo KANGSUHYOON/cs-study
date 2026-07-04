@@ -1,1 +1,40 @@
+body {
+    font-family: sans-serif;
+    background: #f5f5f5;
+}
 
+.container {
+    width: 400px;
+    margin: 80px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+}
+
+.todo-box label {
+    display: block;
+    margin: 15px 0;
+    font-size: 18px;
+}
+
+#progress {
+    margin-top: 20px;
+    font-weight: bold;
+}
+.add-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-box input {
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.add-box button {
+    padding: 8px 12px;
+    font-size: 16px;
+    cursor: pointer;
+}

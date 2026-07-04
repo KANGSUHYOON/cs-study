@@ -1,0 +1,79 @@
+### 전체 Todo 조회
+GET http://localhost:3000/todos
+
+
+### 정상적인 Todo 추가
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+    "title": "Express 입력 검증 공부하기"
+}
+
+### 앞뒤 공백이 있는 Todo 추가
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+    "title": "  Node.js 복습하기    "
+}
+
+### title을 보내지 않음
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+}
+
+
+### title을 보내지 않음
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+    "title: 123"
+}
+
+### 1번 Todo를 완료 상태로 변경
+PATCH http://localhost:3000/todos/1
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+
+### 2번 Todo를 미완료 상태로 변경
+PATCH http://localhost:3000/todos/2
+Content-Type: application/json
+
+{
+  "completed": false
+}
+
+
+### 존재하지 않는 Todo 수정
+PATCH http://localhost:3000/todos/999
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+
+### 잘못된 completed 자료형
+PATCH http://localhost:3000/todos/1
+Content-Type: application/json
+
+{
+  "completed": "true"
+}
+
+
+### 잘못된 ID
+PATCH http://localhost:3000/todos/abc
+Content-Type: application/json
+
+{
+  "completed": true
+}
