@@ -27,52 +27,45 @@ function updateProgress() {
 // Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수
 // Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수
 function renderTodo(todo) {
-  // <label> 생성
-  const label = document.createElement("label");
+  const todoItem = document.createElement("div");
+  todoItem.className = "todo-item";
 
-  // <input> 생성
+  const label = document.createElement("label");
   const checkbox = document.createElement("input");
 
   checkbox.type = "checkbox";
   checkbox.className = "task";
-
-  // 서버의 completed 값에 따라 체크 상태 설정
   checkbox.checked = todo.completed;
-
-  // 서버의 Todo ID를 HTML 요소에 저장
   checkbox.dataset.id = todo.id;
 
-  // checkbox를 label 안에 추가
   label.appendChild(checkbox);
-
-  // Todo 제목 추가
   label.append(" " + todo.title);
 
-  // 완성된 label을 화면에 추가
-  todoBox.appendChild(label);
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "삭제";
+  deleteBtn.className = "delete-btn";
 
-  // 체크박스 상태가 변경되면 서버의 Todo 수정
+  todoItem.appendChild(label);
+  todoItem.appendChild(deleteBtn);
+
+  todoBox.appendChild(todoItem);
+
+  // 체크박스 상태가 변경되면 서버의 Todo 완료 상태 수정
   checkbox.addEventListener("change", async () => {
     const newCompleted = checkbox.checked;
 
-    // 요청 중 중복 클릭 방지
     checkbox.disabled = true;
 
     try {
-      const response = await fetch(
-        `http://localhost:3000/todos/${todo.id}`,
-        {
-          method: "PATCH",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            completed: newCompleted,
-          }),
-        }
-      );
+      const response = await fetch(`http://localhost:3000/todos/${todo.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          completed: newCompleted,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error(`Todo 수정 실패: ${response.status}`);
@@ -80,25 +73,41 @@ function renderTodo(todo) {
 
       const updatedTodo = await response.json();
 
-      console.log("서버에서 수정된 Todo:", updatedTodo);
-
-      // 서버의 최종 값으로 화면 상태 맞추기
       checkbox.checked = updatedTodo.completed;
-
       updateProgress();
     } catch (error) {
       console.error("Todo를 수정하는 중 오류 발생:", error);
 
-      // 실패했다면 기존 상태로 되돌림
       checkbox.checked = !newCompleted;
-
       updateProgress();
     } finally {
       checkbox.disabled = false;
     }
   });
-}
 
+  // 삭제 버튼을 누르면 서버에서 Todo 삭제
+  deleteBtn.addEventListener("click", async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/todos/${todo.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Todo 삭제 실패: ${response.status}`);
+      }
+
+      const deletedTodo = await response.json();
+
+      console.log("삭제된 Todo:", deletedTodo);
+
+      todoItem.remove();
+
+      updateProgress();
+    } catch (error) {
+      console.error("Todo를 삭제하는 중 오류 발생:", error);
+    }
+  });
+}
 // 서버에서 전체 Todo 목록을 가져오는 함수
 async function loadTodos() {
   try {
