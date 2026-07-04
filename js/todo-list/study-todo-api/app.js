@@ -108,6 +108,28 @@ app.patch("/todos/:id", (req, res) => {
   res.status(200).json(todo);
 });
 
+app.delete("/todos/:id", (req, res) => {
+  const todoId = Number(req.params.id);
+
+  if (!Number.isInteger(todoId) || todoId <= 0) {
+    return res.status(400).json({
+      message: "올바른 Todo ID를 입력해주세요.",
+    });
+  }
+
+  const todoIndex = todos.findIndex((todo) => todo.id === todoId);
+
+  if (todoIndex === -1) {
+    return res.status(404).json({
+      message: "해당 Todo를 찾을 수 없습니다.",
+    });
+  }
+
+  const deletedTodo = todos.splice(todoIndex, 1)[0];
+
+  res.status(200).json(deletedTodo);
+});
+
 // port 번호로 서버 실행
 app.listen(PORT, () => {
   // 서버가 정상 실행되면 터미널에 주소 출력
