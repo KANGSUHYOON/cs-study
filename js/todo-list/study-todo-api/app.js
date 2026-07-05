@@ -108,6 +108,59 @@ app.patch("/todos/:id", (req, res) => {
   res.status(200).json(todo);
 });
 
+// 특정 Todo의 제목과 완료 상태를 수정하는 API
+app.put("/todos/:id", (req, res) => {
+  // URL에서 전달된 id 값을 숫자로 변환
+  const todoId = Number(req.params.id);
+
+  // 요청 body에서 title, completed 값을 꺼냄
+  const { title, completed } = req.body;
+
+  // id가 올바른 양의 정수가 아니면 오류 처리
+  if (!Number.isInteger(todoId) || todoId <= 0) {
+    return res.status(400).json({
+      message: "올바른 Todo ID를 입력해주세요.",
+    });
+  }
+
+  // 배열에서 전달받은 id와 일치하는 Todo를 찾음
+  const todo = todos.find((todo) => todo.id === todoId);
+
+  // 해당 Todo가 없으면 404 오류 처리
+  if (!todo) {
+    return res.status(404).json({
+      message: "해당 Todo를 찾을 수 없습니다.",
+    });
+  }
+
+  // title이 전달된 경우에만 제목 수정
+  if (title !== undefined) {
+    const trimmedTitle = typeof title === "string" ? title.trim() : "";
+
+    if (!trimmedTitle) {
+      return res.status(400).json({
+        message: "title을 올바르게 입력해주세요.",
+      });
+    }
+
+    todo.title = trimmedTitle;
+  }
+
+  // completed가 전달된 경우에만 완료 상태 수정
+  if (completed !== undefined) {
+    if (typeof completed !== "boolean") {
+      return res.status(400).json({
+        message: "completed 값은 true 또는 false여야 합니다.",
+      });
+    }
+
+    todo.completed = completed;
+  }
+
+  // 수정된 Todo 반환
+  res.status(200).json(todo);
+});
+
 app.delete("/todos/:id", (req, res) => {
   const todoId = Number(req.params.id);
 
@@ -129,6 +182,8 @@ app.delete("/todos/:id", (req, res) => {
 
   res.status(200).json(deletedTodo);
 });
+
+
 
 // port 번호로 서버 실행
 app.listen(PORT, () => {

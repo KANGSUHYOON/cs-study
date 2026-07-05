@@ -77,3 +77,12 @@ Content-Type: application/json
 {
   "completed": true
 }
+
+
+PUT http://localhost:3000/todos/1
+Content-Type: application/json
+
+{
+  "title": "Node.js PUT 구현하기",
+  "completed": true
+}
