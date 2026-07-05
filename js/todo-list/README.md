@@ -82,7 +82,7 @@ Content-Type: application/json
 ```
 ---
 
-### TODO 제못 및 상태 수정
+### TODO 제목 및 상태 수정
 ```
 PUT http://localhost:3000/todos/1
 Content-Type: application/json
