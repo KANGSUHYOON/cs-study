@@ -1,6 +1,7 @@
 /*설치한 EXPRESS 라이브러리를 현재 파일에서 사용할 수 있게 불러오는 코드*/
 const express = require("express");
 const cors = require("cors")
+const db = require("./db"); //db.js에서 내보낸 db 연결 풀을 불러옴
 
 const app = express(); //Express  기반 서버 애플리케이션을 생성
 const PORT = 3000; //서버가 사용할 포트 번호를 지정
@@ -30,13 +31,34 @@ app.get("/", (req, res) => {
   res.send("공부 TODO 서버가 정상적으로 실행 중입니다!");
 });
 
-/* TODO 목록을 반환하는 API 추가*/
-app.get("/todos", (req, res) => {
-  res.json(todos);
+// MySQL에서 전체 Todo 목록 조회
+app.get("/todos", async (req, res) => {
+  try {
+    /* mysql에 sql을 보내고 결과를 기다린다 */
+    const [rows] = await db.query(`             
+      SELECT id, title, completed, created_at
+      FROM todos
+      ORDER BY id ASC
+    `);
+
+    // completed 값을 true 또는 false로 변환
+    const todos = rows.map((row) => ({
+      ...row,
+      completed: Boolean(row.completed),
+    }));
+
+    res.status(200).json(todos);
+  } catch (error) {
+    console.error("Todo 조회 중 DB 오류:", error);
+
+    res.status(500).json({
+      message: "Todo 목록을 불러오지 못했습니다.",
+    });
+  }
 });
 
 //post 방식으로 /todos 주소에 요청이 들어왔을 때 실행되는 코드
-app.post("/todos", (req, res) => {
+app.post("/todos", async (req, res) => {
   // 요청 body에서 title 값을 꺼냄
   // const title = req.body.title; 과 같은 의미
   const { title } = req.body;
@@ -70,7 +92,7 @@ app.post("/todos", (req, res) => {
 });
 
 // 특정 Todo의 완료 상태를 수정하는 API
-app.patch("/todos/:id", (req, res) => {
+app.patch("/todos/:id", async (req, res) => {
   // URL에서 전달된 id 값을 숫자로 변환
   const todoId = Number(req.params.id);
 
@@ -185,8 +207,20 @@ app.delete("/todos/:id", (req, res) => {
 
 
 
-// port 번호로 서버 실행
-app.listen(PORT, () => {
-  // 서버가 정상 실행되면 터미널에 주소 출력
-  console.log(`서버 실행 중: http://localhost:${PORT}`);
-});
+// MySQL 연결을 확인한 후 서버 실행
+async function startServer() {
+  try {
+    // 간단한 SQL을 실행하여 DB 연결 확인
+    await db.query("SELECT 1");
+
+    console.log("MySQL 연결 성공");
+
+    app.listen(PORT, () => {
+      console.log(`서버 실행 중: http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error("MySQL 연결 실패:", error.message);
+  }
+}
+
+startServer();
