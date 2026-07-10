@@ -38,3 +38,111 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
+
+/* 입력창과 추가 버튼을 한 줄로 배치 */
+.input-box {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* 입력창이 남은 공간을 차지 */
+#newTask {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 15px;
+
+    border: 2px solid #333;
+    border-radius: 8px;
+
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* 입력창 클릭 시 */
+#newTask:focus {
+    border-color: #2563eb;
+    outline: none;
+}
+
+/* 추가 버튼 */
+#addBtn {
+    padding: 0 22px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: #2563eb;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* 추가 버튼에 마우스를 올렸을 때 */
+#addBtn:hover {
+    background-color: #1d4ed8;
+}
+
+/* 할 일 한 줄 */
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    padding: 12px 4px;
+
+    border-bottom: 1px solid #eeeeee;
+    box-sizing: border-box;
+}
+
+/* 체크박스와 제목 */
+.todo-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* 체크박스 */
+.task {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+}
+
+/* 할 일 제목 */
+.todo-title {
+    font-size: 17px;
+}
+
+/* 삭제 버튼 */
+.delete-btn {
+    padding: 7px 12px;
+
+    border: none;
+    border-radius: 7px;
+
+    background-color: #f1f3f5;
+    color: #555;
+
+    font-size: 14px;
+    cursor: pointer;
+
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* 삭제 버튼에 마우스를 올렸을 때 */
+.delete-btn:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.todo-content:has(.task:checked) {
+    color: #999;
+    text-decoration: line-through;
+}

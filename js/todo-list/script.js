@@ -25,12 +25,13 @@ function updateProgress() {
 }
 
 // Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수
-// Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수
 function renderTodo(todo) {
   const todoItem = document.createElement("div");
   todoItem.className = "todo-item";
 
   const label = document.createElement("label");
+  label.className = "todo-content";
+
   const checkbox = document.createElement("input");
 
   checkbox.type = "checkbox";
@@ -143,8 +144,6 @@ newTaskInput.addEventListener("keydown", (event) => {
   }
 });
 
-// 아직은 화면에만 Todo를 추가하는 코드
-// 다음 단계에서 POST /todos와 연결할 예정
 // 추가 버튼을 누르면 새로운 Todo를 서버에 저장
 addBtn.addEventListener("click", async () => {
   // 입력창의 앞뒤 공백을 제거
