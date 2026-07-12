@@ -105,6 +105,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+
+    flex: 1;
+    min-width: 0;
+
     cursor: pointer;
 }
 
@@ -118,10 +122,21 @@ body {
 /* 할 일 제목 */
 .todo-title {
     font-size: 17px;
+    word-break: break-all;
 }
 
-/* 삭제 버튼 */
-.delete-btn {
+/* 버튼 영역 */
+.button-box {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Todo 버튼 공통 스타일 */
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
     padding: 7px 12px;
 
     border: none;
@@ -131,15 +146,66 @@ body {
     color: #555;
 
     font-size: 14px;
+    font-weight: 500;
+
     cursor: pointer;
 
-    transition: background-color 0.2s, color 0.2s;
+    transition:
+        background-color 0.2s,
+        color 0.2s,
+        transform 0.1s;
 }
 
-/* 삭제 버튼에 마우스를 올렸을 때 */
+.edit-btn:active,
+.delete-btn:active,
+.save-btn:active,
+.cancel-btn:active {
+    transform: scale(0.96);
+}
+
+.edit-btn:hover {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
 .delete-btn:hover {
     background-color: #fee2e2;
     color: #dc2626;
+}
+
+.save-btn {
+    background-color: #2563eb;
+    color: white;
+}
+
+.save-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.cancel-btn:hover {
+    background-color: #e5e7eb;
+    color: #222;
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 수정 입력창 */
+.edit-input {
+    flex: 1;
+    min-width: 0;
+
+    padding: 6px 8px;
+
+    border: 1px solid #aaa;
+    border-radius: 5px;
+
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 .todo-content:has(.task:checked) {

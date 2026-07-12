@@ -33,23 +33,47 @@ function renderTodo(todo) {
   label.className = "todo-content";
 
   const checkbox = document.createElement("input");
-
   checkbox.type = "checkbox";
   checkbox.className = "task";
   checkbox.checked = todo.completed;
   checkbox.dataset.id = todo.id;
 
+  // 제목을 수정할 수 있도록 별도의 span 요소로 생성
+  const titleSpan = document.createElement("span");
+  titleSpan.className = "todo-title";
+  titleSpan.textContent = todo.title;
+
   label.appendChild(checkbox);
-  label.append(" " + todo.title);
+  label.appendChild(titleSpan);
+
+  // 수정·삭제 버튼을 담을 영역
+  const buttonBox = document.createElement("div");
+  buttonBox.className = "button-box";
+
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "수정";
+  editBtn.className = "edit-btn";
 
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "삭제";
   deleteBtn.className = "delete-btn";
 
+  buttonBox.appendChild(editBtn);
+  buttonBox.appendChild(deleteBtn);
+
   todoItem.appendChild(label);
-  todoItem.appendChild(deleteBtn);
+  todoItem.appendChild(buttonBox);
 
   todoBox.appendChild(todoItem);
+
+  // 수정 완료 또는 취소 후 기본 버튼 상태로 돌아가는 함수
+  function restoreButtons() {
+    buttonBox.innerHTML = "";
+    buttonBox.appendChild(editBtn);
+    buttonBox.appendChild(deleteBtn);
+
+    checkbox.disabled = false;
+  }
 
   // 체크박스 상태가 변경되면 서버의 Todo 완료 상태 수정
   checkbox.addEventListener("change", async () => {
@@ -58,15 +82,18 @@ function renderTodo(todo) {
     checkbox.disabled = true;
 
     try {
-      const response = await fetch(`http://localhost:3000/todos/${todo.id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          completed: newCompleted,
-        }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/todos/${todo.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            completed: newCompleted,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Todo 수정 실패: ${response.status}`);
@@ -75,10 +102,13 @@ function renderTodo(todo) {
       const updatedTodo = await response.json();
 
       checkbox.checked = updatedTodo.completed;
+      todo.completed = updatedTodo.completed;
+
       updateProgress();
     } catch (error) {
       console.error("Todo를 수정하는 중 오류 발생:", error);
 
+      // 서버 수정에 실패하면 체크 상태를 원래대로 되돌림
       checkbox.checked = !newCompleted;
       updateProgress();
     } finally {
@@ -86,12 +116,124 @@ function renderTodo(todo) {
     }
   });
 
+  // 수정 버튼을 누르면 제목을 입력창으로 변경
+  editBtn.addEventListener("click", () => {
+    const editInput = document.createElement("input");
+    editInput.type = "text";
+    editInput.className = "edit-input";
+    editInput.value = todo.title;
+
+    const saveBtn = document.createElement("button");
+    saveBtn.textContent = "저장";
+    saveBtn.className = "save-btn";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.textContent = "취소";
+    cancelBtn.className = "cancel-btn";
+
+    // 수정 중에는 체크박스 사용 중지
+    checkbox.disabled = true;
+
+    // 기존 제목을 입력창으로 교체
+    titleSpan.replaceWith(editInput);
+
+    // 수정·삭제 버튼을 저장·취소 버튼으로 교체
+    buttonBox.innerHTML = "";
+    buttonBox.appendChild(saveBtn);
+    buttonBox.appendChild(cancelBtn);
+
+    editInput.focus();
+    editInput.select();
+
+    // 수정 취소
+    function cancelEdit() {
+      editInput.replaceWith(titleSpan);
+      restoreButtons();
+    }
+
+    // 수정 내용 저장
+    async function saveEdit() {
+      const newTitle = editInput.value.trim();
+
+      if (newTitle === "") {
+        alert("수정할 제목을 입력해주세요.");
+        editInput.focus();
+        return;
+      }
+
+      saveBtn.disabled = true;
+      cancelBtn.disabled = true;
+      editInput.disabled = true;
+
+      try {
+        const response = await fetch(
+          `http://localhost:3000/todos/${todo.id}/title`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title: newTitle,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+
+          throw new Error(
+            errorData?.message || `Todo 제목 수정 실패: ${response.status}`
+          );
+        }
+
+        const updatedTodo = await response.json();
+
+        // 서버에서 받은 새로운 제목을 현재 Todo 객체와 화면에 반영
+        todo.title = updatedTodo.title;
+        titleSpan.textContent = updatedTodo.title;
+
+        editInput.replaceWith(titleSpan);
+        restoreButtons();
+
+        console.log("수정된 Todo:", updatedTodo);
+      } catch (error) {
+        console.error("Todo 제목을 수정하는 중 오류 발생:", error);
+        alert(error.message);
+
+        saveBtn.disabled = false;
+        cancelBtn.disabled = false;
+        editInput.disabled = false;
+        editInput.focus();
+      }
+    }
+
+    saveBtn.addEventListener("click", saveEdit);
+    cancelBtn.addEventListener("click", cancelEdit);
+
+    // 입력창에서 Enter를 누르면 저장
+    // Escape를 누르면 수정 취소
+    editInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveEdit();
+      }
+
+      if (event.key === "Escape") {
+        cancelEdit();
+      }
+    });
+  });
+
   // 삭제 버튼을 누르면 서버에서 Todo 삭제
   deleteBtn.addEventListener("click", async () => {
     try {
-      const response = await fetch(`http://localhost:3000/todos/${todo.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3000/todos/${todo.id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Todo 삭제 실패: ${response.status}`);
@@ -102,13 +244,13 @@ function renderTodo(todo) {
       console.log("삭제된 Todo:", deletedTodo);
 
       todoItem.remove();
-
       updateProgress();
     } catch (error) {
       console.error("Todo를 삭제하는 중 오류 발생:", error);
     }
   });
 }
+
 // 서버에서 전체 Todo 목록을 가져오는 함수
 async function loadTodos() {
   try {
