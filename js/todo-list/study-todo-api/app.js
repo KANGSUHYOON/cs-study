@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const db = require("./db");
 const todoRoutes = require("./routes/todoRoutes");
 
@@ -15,6 +16,9 @@ app.use("/todos", todoRoutes);
 app.get("/", (req, res) => {
   res.send("공부 TODO 서버가 정상적으로 실행 중입니다!");
 });
+
+// public 폴더의 프론트엔드 정적 파일 제공
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 
 // MySQL 연결을 확인한 후 서버 실행
 async function startServer() {
