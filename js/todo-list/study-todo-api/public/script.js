@@ -2,6 +2,110 @@ const progressText = document.getElementById("progress");
 const addBtn = document.getElementById("addBtn");
 const newTaskInput = document.getElementById("newTask");
 const todoBox = document.getElementById("todoList");
+const weatherHero = document.getElementById("weatherHero");
+const koreanDateText = document.getElementById("koreanDate");
+const timeGreetingText = document.getElementById("timeGreeting");
+const koreanTimeText = document.getElementById("koreanTime");
+
+const TIME_PERIOD_CONTENT = {
+  morning: {
+    greeting: "좋은 아침이야. 가볍게 시작해보자.",
+  },
+  day: {
+    greeting: "좋은 오후야. 오늘 계획을 이어가보자.",
+  },
+  evening: {
+    greeting: "좋은 저녁이야. 남은 할 일을 확인해보자.",
+  },
+  night: {
+    greeting: "오늘도 수고했어. 무리하지 말고 정리해보자.",
+  },
+};
+
+let timeSceneTimer = null;
+
+// 사용자의 로컬 시간대와 관계없이 한국 표준시의 각 값을 구함
+function getKoreanDateTimeParts() {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    weekday: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = Object.fromEntries(
+    formatter
+      .formatToParts(now)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  const displayTime = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(now);
+
+  return {
+    year: Number(parts.year),
+    month: Number(parts.month),
+    day: Number(parts.day),
+    weekday: parts.weekday,
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+    displayTime,
+  };
+}
+
+function getTimePeriod(hour) {
+  if (hour >= 5 && hour < 11) {
+    return "morning";
+  }
+
+  if (hour >= 11 && hour < 17) {
+    return "day";
+  }
+
+  if (hour >= 17 && hour < 20) {
+    return "evening";
+  }
+
+  return "night";
+}
+
+function updateTimeScene() {
+  if (
+    !weatherHero ||
+    !koreanDateText ||
+    !timeGreetingText ||
+    !koreanTimeText
+  ) {
+    return;
+  }
+
+  const koreanDateTime = getKoreanDateTimeParts();
+  const timePeriod = getTimePeriod(koreanDateTime.hour);
+  const content = TIME_PERIOD_CONTENT[timePeriod];
+
+  weatherHero.dataset.time = timePeriod;
+  koreanDateText.textContent = `${koreanDateTime.month}월 ${koreanDateTime.day}일 ${koreanDateTime.weekday}`;
+  timeGreetingText.textContent = content.greeting;
+  koreanTimeText.textContent = koreanDateTime.displayTime;
+}
+
+function startTimeScene() {
+  updateTimeScene();
+
+  if (timeSceneTimer === null) {
+    timeSceneTimer = setInterval(updateTimeScene, 60 * 1000);
+  }
+}
 
 // 진행률을 계산하는 함수
 function updateProgress() {
@@ -336,4 +440,5 @@ addBtn.addEventListener("click", async () => {
 });
 
 // 페이지가 열릴 때 서버 Todo 불러오기
+startTimeScene();
 loadTodos();
