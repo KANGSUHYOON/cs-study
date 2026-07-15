@@ -2,29 +2,89 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Study Dashboard</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css" />
   </head>
 
   <body>
-    <div class="container">
-      <h1>오늘의 공부</h1>
+    <main class="app-shell">
+      <section
+        id="weatherHero"
+        class="weather-hero"
+        data-time="night"
+        aria-labelledby="timeGreeting"
+      >
+        <div class="scene-layer sky-layer" aria-hidden="true"></div>
 
-      <div class="add-box">
-        <input
-          type="text"
-          id="newTask"
-          placeholder="할 일을 입력하세요"
-        />
-        <button id="addBtn">추가</button>
-      </div>
+        <div class="scene-layer stars-layer" aria-hidden="true">
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+          <span class="star"></span>
+        </div>
 
-      <div class="todo-box" id="todoList">
-        <!-- 서버에서 가져온 Todo 목록이 여기에 생성됨 -->
-      </div>
+        <div class="scene-layer sun-layer" aria-hidden="true">
+          <span class="sun"></span>
+        </div>
 
-      <p id="progress">진행률: 0%</p>
-    </div>
+        <div class="scene-layer moon-layer" aria-hidden="true">
+          <span class="moon"></span>
+        </div>
+
+        <div class="scene-layer clouds-layer" aria-hidden="true">
+          <span class="cloud cloud-one"></span>
+          <span class="cloud cloud-two"></span>
+          <span class="cloud cloud-three"></span>
+        </div>
+
+        <div class="scene-layer landscape-layer" aria-hidden="true">
+          <span class="ridge ridge-back"></span>
+          <span class="ridge ridge-front"></span>
+          <span class="water"></span>
+          <span class="shore"></span>
+        </div>
+
+        <div class="weather-hero-content">
+          <p id="koreanDate" class="korean-date"></p>
+          <h1 id="timeGreeting" class="time-greeting"></h1>
+          <p id="koreanTime" class="korean-time"></p>
+        </div>
+
+        <section class="todo-panel" aria-labelledby="todoHeading">
+        <div class="todo-heading-row">
+          <div>
+            <p class="todo-eyebrow">STUDY PLAN</p>
+            <h2 id="todoHeading">일정</h2>
+          </div>
+          <p id="progress" aria-live="polite">진행률: 0%</p>
+        </div>
+
+        <div class="add-box">
+          <label class="sr-only" for="newTask">새로운 할 일</label>
+          <input
+            type="text"
+            id="newTask"
+            placeholder="할 일을 입력하세요"
+            autocomplete="off"
+          />
+          <button id="addBtn" type="button">추가</button>
+        </div>
+
+        <div class="todo-box" id="todoList" aria-live="polite">
+          <!-- 서버에서 가져온 Todo 목록이 여기에 생성됨 -->
+        </div>
+        </section>
+      </section>
+    </main>
 
     <script src="./script.js" defer></script>
   </body>
