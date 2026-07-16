@@ -1,4 +1,6 @@
 const progressText = document.getElementById("progress");
+const progressBar = document.getElementById("progressBar");
+const progressTrack = document.querySelector(".progress-track");
 const addBtn = document.getElementById("addBtn");
 const newTaskInput = document.getElementById("newTask");
 const todoBox = document.getElementById("todoList");
@@ -15,7 +17,7 @@ const TIME_PERIOD_CONTENT = {
     greeting: "좋은 오후야. 오늘 계획을 이어가보자.",
   },
   evening: {
-    greeting: "좋은 저녁이야. 남은 할 일을 확인해보자.",
+    greeting: "좋은 저녁이야.\n남은 할 일을 마무리하자.",
   },
   night: {
     greeting: "오늘도 수고했어. 무리하지 말고 정리해보자.",
@@ -126,6 +128,8 @@ function updateProgress() {
       : Math.round((checked / tasks.length) * 100);
 
   progressText.textContent = `진행률: ${percent}%`;
+  progressBar.style.width = `${percent}%`;
+  progressTrack.setAttribute("aria-valuenow", String(percent));
 }
 
 // Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수

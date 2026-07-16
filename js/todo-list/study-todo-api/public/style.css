@@ -56,7 +56,10 @@ button {
   --ridge-back: #28466b;
   --ridge-front: #172f4e;
   --water-color: rgba(50, 89, 129, 0.72);
+  --water-deep: #193b63;
+  --water-reflection: rgba(199, 220, 239, 0.16);
   --shore-color: #142d46;
+  --scene-horizon: 318px;
   --sun-x: 70%;
   --sun-y: 44%;
   --sun-opacity: 0;
@@ -77,7 +80,7 @@ button {
     0 28px 70px rgba(48, 72, 111, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.42);
   color: var(--hero-text);
-  background: #274f8c;
+  background: var(--water-deep);
   transition: background-color 1.8s ease, color 1.2s ease;
 }
 
@@ -262,10 +265,27 @@ button {
 /* 지면과 풍경 */
 .landscape-layer {
   z-index: -1;
-  top: 0;
-  bottom: auto;
-  height: 430px;
+  inset: 0;
   overflow: hidden;
+}
+
+.landscape-layer::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: calc(var(--scene-horizon) - 24px);
+  right: -6%;
+  left: -6%;
+  height: 76px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(215, 225, 239, 0.1) 42%,
+    var(--water-reflection) 56%,
+    transparent 86%
+  );
+  filter: blur(10px);
+  opacity: 0.8;
 }
 
 .ridge,
@@ -278,17 +298,19 @@ button {
 
 .ridge {
   right: -4%;
-  bottom: 19%;
+  top: 150px;
+  bottom: auto;
   width: 74%;
-  height: 46%;
+  height: 198px;
   transform-origin: bottom center;
 }
 
 .ridge-back {
   right: 23%;
-  bottom: 25%;
+  top: 176px;
+  bottom: auto;
   width: 68%;
-  height: 34%;
+  height: 146px;
   background: var(--ridge-back);
   clip-path: polygon(0 100%, 18% 49%, 31% 69%, 49% 13%, 67% 66%, 81% 38%, 100% 100%);
   opacity: 0.72;
@@ -302,14 +324,33 @@ button {
 }
 
 .water {
+  z-index: 1;
+  top: var(--scene-horizon);
   right: 0;
   bottom: 0;
   left: 0;
-  height: 26%;
+  height: auto;
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 70% 0%, rgba(255, 240, 190, 0.22), transparent 31%),
-    linear-gradient(180deg, var(--water-color), rgba(20, 48, 75, 0.9));
+    radial-gradient(ellipse at 70% 0%, rgba(255, 240, 190, 0.22), transparent 26%),
+    radial-gradient(ellipse at 24% 16%, var(--water-reflection), transparent 38%),
+    linear-gradient(180deg, var(--water-color) 0%, var(--water-deep) 72%);
+}
+
+.water::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      176deg,
+      transparent 0 20px,
+      rgba(255, 255, 255, 0.055) 21px,
+      transparent 23px 42px
+    ),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.035), transparent);
+  opacity: 0.72;
+  mask-image: linear-gradient(180deg, #000, rgba(0, 0, 0, 0.58) 46%, transparent 100%);
 }
 
 .water::after {
@@ -326,13 +367,17 @@ button {
 }
 
 .shore {
+  z-index: 2;
   right: -7%;
-  bottom: -12%;
+  top: calc(var(--scene-horizon) + 60px);
+  bottom: auto;
   width: 62%;
-  height: 29%;
+  height: 125px;
   border-radius: 65% 0 0 0;
   background: var(--shore-color);
-  transform: rotate(-3deg);
+  filter: blur(2px);
+  opacity: 0.48;
+  transform: translateY(12px) rotate(-3deg);
 }
 
 /* 헤더 텍스트 */
@@ -368,7 +413,8 @@ button {
   font-weight: 760;
   line-height: 1.24;
   letter-spacing: -0.04em;
-  text-wrap: balance;
+  white-space: pre-line;
+  text-wrap: pretty;
 }
 
 .korean-time {
@@ -386,6 +432,8 @@ button {
   --ridge-back: #7294a5;
   --ridge-front: #4f7281;
   --water-color: rgba(119, 172, 190, 0.72);
+  --water-deep: #4d8295;
+  --water-reflection: rgba(236, 246, 243, 0.2);
   --shore-color: #426878;
   --sun-x: 75%;
   --sun-y: 55%;
@@ -400,6 +448,8 @@ button {
   --ridge-back: #4d8b91;
   --ridge-front: #2e6872;
   --water-color: rgba(50, 149, 183, 0.68);
+  --water-deep: #286f8e;
+  --water-reflection: rgba(220, 246, 255, 0.2);
   --shore-color: #275c68;
   --sun-x: 74%;
   --sun-y: 22%;
@@ -414,6 +464,8 @@ button {
   --ridge-back: #6a5472;
   --ridge-front: #493f63;
   --water-color: rgba(119, 82, 132, 0.72);
+  --water-deep: #493f70;
+  --water-reflection: rgba(255, 218, 215, 0.18);
   --shore-color: #3d3756;
   --sun-x: 76%;
   --sun-y: 60%;
@@ -428,6 +480,8 @@ button {
   --ridge-back: #27476b;
   --ridge-front: #132c49;
   --water-color: rgba(35, 74, 112, 0.78);
+  --water-deep: #122f52;
+  --water-reflection: rgba(184, 215, 242, 0.14);
   --shore-color: #102841;
   --sun-opacity: 0;
   --moon-x: 74%;
@@ -476,7 +530,6 @@ button {
 }
 
 #progress {
-  flex: 0 0 auto;
   margin: 0;
   padding: 9px 14px;
   border-radius: 999px;
@@ -484,6 +537,31 @@ button {
   background: #eaf2ff;
   font-size: 0.88rem;
   font-weight: 750;
+}
+
+.progress-area {
+  flex: 0 0 auto;
+  width: min(190px, 38%);
+  min-width: 150px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  margin-top: 9px;
+  overflow: hidden;
+  border: 1px solid rgba(91, 130, 181, 0.12);
+  border-radius: 999px;
+  background: rgba(212, 225, 243, 0.72);
+  box-shadow: inset 0 1px 2px rgba(43, 72, 111, 0.08);
+}
+
+.progress-bar {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5d96df, #356fbd);
+  transition: width 0.35s ease;
 }
 
 .add-box {
@@ -701,6 +779,7 @@ button {
   }
 
   .weather-hero {
+    --scene-horizon: 274px;
     min-height: 640px;
     padding: 24px;
     border-radius: 26px;
@@ -712,15 +791,25 @@ button {
     padding: 24px 2px 26px;
   }
 
-  .landscape-layer {
-    height: 370px;
-  }
-
   .stars-layer,
   .sun-layer,
   .moon-layer,
   .clouds-layer {
     height: 370px;
+  }
+
+  .ridge {
+    top: 129px;
+    height: 170px;
+  }
+
+  .ridge-back {
+    top: 151px;
+    height: 126px;
+  }
+
+  .shore {
+    height: 108px;
   }
 
   .time-greeting {
@@ -759,9 +848,19 @@ button {
     margin-bottom: 20px;
   }
 
+  .progress-area {
+    width: min(148px, 46%);
+    min-width: 118px;
+  }
+
   #progress {
     padding: 8px 11px;
     font-size: 0.8rem;
+  }
+
+  .progress-track {
+    height: 10px;
+    margin-top: 7px;
   }
 
   .todo-item {
@@ -782,14 +881,30 @@ button {
   .delete-btn,
   .save-btn,
   .cancel-btn {
-    min-height: 36px;
+    min-height: 40px;
     padding: 6px 10px;
     font-size: 0.78rem;
   }
 }
 
+@media (max-width: 600px) {
+  .add-box {
+    flex-direction: column;
+  }
+
+  #newTask,
+  #addBtn {
+    width: 100%;
+  }
+
+  #addBtn {
+    min-width: 0;
+  }
+}
+
 @media (max-width: 430px) {
   .weather-hero {
+    --scene-horizon: 252px;
     min-height: 600px;
     padding: 18px;
   }
@@ -799,15 +914,25 @@ button {
     padding-bottom: 22px;
   }
 
-  .landscape-layer {
-    height: 340px;
-  }
-
   .stars-layer,
   .sun-layer,
   .moon-layer,
   .clouds-layer {
     height: 340px;
+  }
+
+  .ridge {
+    top: 119px;
+    height: 157px;
+  }
+
+  .ridge-back {
+    top: 139px;
+    height: 116px;
+  }
+
+  .shore {
+    height: 100px;
   }
 
   .ridge-back {
@@ -824,6 +949,7 @@ button {
 
   .todo-heading-row {
     align-items: flex-start;
+    gap: 10px;
   }
 
   .todo-heading-row h2 {
@@ -845,15 +971,71 @@ button {
   }
 
   .todo-item {
+    align-items: stretch;
     flex-wrap: wrap;
   }
 
   .todo-content {
-    flex-basis: calc(100% - 94px);
+    flex-basis: 100%;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .task {
+    width: 21px;
+    height: 21px;
+  }
+
+  .button-box {
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .edit-input {
     width: 100%;
+  }
+}
+
+@media (max-width: 375px) {
+  .app-shell {
+    width: calc(100% - 16px);
+    padding-top: 12px;
+  }
+
+  .weather-hero {
+    padding: 14px;
+    border-radius: 22px;
+  }
+
+  .weather-hero-content {
+    padding-inline: 2px;
+  }
+
+  .time-greeting {
+    max-width: 100%;
+    line-height: 1.28;
+  }
+
+  .korean-date {
+    font-size: 0.86rem;
+  }
+
+  .korean-time {
+    font-size: 0.92rem;
+  }
+
+  .todo-panel {
+    padding: 20px 12px;
+    border-radius: 20px;
+  }
+
+  .progress-area {
+    min-width: 112px;
+  }
+
+  #progress {
+    padding-inline: 9px;
+    white-space: nowrap;
   }
 }
 
@@ -865,5 +1047,9 @@ button {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .progress-bar {
+    transition: none;
   }
 }
