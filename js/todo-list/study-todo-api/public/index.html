@@ -91,6 +91,36 @@
           <button id="addBtn" type="button">추가</button>
         </div>
 
+        <div class="todo-filters" role="group" aria-label="Todo 필터">
+          <button
+            type="button"
+            class="filter-btn active"
+            data-filter="all"
+            aria-pressed="true"
+          >
+            전체
+            <span class="filter-count" id="allCount">0</span>
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-filter="active"
+            aria-pressed="false"
+          >
+            진행 중
+            <span class="filter-count" id="activeCount">0</span>
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-filter="completed"
+            aria-pressed="false"
+          >
+            완료
+            <span class="filter-count" id="completedCount">0</span>
+          </button>
+        </div>
+
         <div class="todo-box" id="todoList" aria-live="polite">
           <!-- 서버에서 가져온 Todo 목록이 여기에 생성됨 -->
         </div>

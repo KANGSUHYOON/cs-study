@@ -570,6 +570,80 @@ button {
   margin-bottom: 24px;
 }
 
+.todo-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 5px;
+  border: 1px solid #dfe7f1;
+  border-radius: 15px;
+  background: rgba(238, 243, 249, 0.9);
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  color: #68778c;
+  background: transparent;
+  font-size: 0.86rem;
+  font-weight: 730;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.16s ease;
+}
+
+.filter-btn:hover {
+  color: #315f9d;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.filter-btn.active {
+  color: #ffffff;
+  background: linear-gradient(135deg, #578ed8, #396fba);
+  box-shadow: 0 7px 16px rgba(54, 105, 178, 0.2);
+}
+
+.filter-btn:active {
+  transform: scale(0.98);
+}
+
+.filter-btn:focus-visible {
+  outline: 3px solid rgba(58, 116, 195, 0.32);
+  outline-offset: 2px;
+}
+
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 999px;
+  color: #5b6c83;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.filter-btn.active .filter-count {
+  color: #315f9d;
+  background: rgba(255, 255, 255, 0.94);
+}
+
 #newTask {
   flex: 1;
   min-width: 0;
@@ -621,6 +695,20 @@ button {
 .todo-box {
   display: grid;
   gap: 10px;
+}
+
+.empty-message {
+  min-height: 92px;
+  margin: 0;
+  padding: 30px 18px;
+  border: 1px dashed #d4dfec;
+  border-radius: 16px;
+  color: #7c899c;
+  background: rgba(247, 250, 253, 0.7);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.55;
+  text-align: center;
 }
 
 .todo-item {
@@ -1036,6 +1124,25 @@ button {
   #progress {
     padding-inline: 9px;
     white-space: nowrap;
+  }
+
+  .todo-filters {
+    gap: 3px;
+    padding: 4px;
+  }
+
+  .filter-btn {
+    gap: 4px;
+    min-height: 40px;
+    padding-inline: 5px;
+    font-size: 0.78rem;
+  }
+
+  .filter-count {
+    min-width: 20px;
+    height: 20px;
+    padding-inline: 5px;
+    font-size: 0.68rem;
   }
 }
 

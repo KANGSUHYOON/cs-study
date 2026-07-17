@@ -4,6 +4,10 @@ const progressTrack = document.querySelector(".progress-track");
 const addBtn = document.getElementById("addBtn");
 const newTaskInput = document.getElementById("newTask");
 const todoBox = document.getElementById("todoList");
+const filterButtons = document.querySelectorAll(".filter-btn");
+const allCount = document.getElementById("allCount");
+const activeCount = document.getElementById("activeCount");
+const completedCount = document.getElementById("completedCount");
 const weatherHero = document.getElementById("weatherHero");
 const koreanDateText = document.getElementById("koreanDate");
 const timeGreetingText = document.getElementById("timeGreeting");
@@ -25,6 +29,8 @@ const TIME_PERIOD_CONTENT = {
 };
 
 let timeSceneTimer = null;
+let todos = [];
+let currentFilter = "all";
 
 // 사용자의 로컬 시간대와 관계없이 한국 표준시의 각 값을 구함
 function getKoreanDateTimeParts() {
@@ -109,27 +115,79 @@ function startTimeScene() {
   }
 }
 
-// 진행률을 계산하는 함수
-function updateProgress() {
-  // 현재 화면에 존재하는 모든 체크박스를 가져옴
-  const tasks = document.querySelectorAll(".task");
+function getFilteredTodos() {
+  if (currentFilter === "active") {
+    return todos.filter((todo) => !todo.completed);
+  }
 
-  let checked = 0;
+  if (currentFilter === "completed") {
+    return todos.filter((todo) => todo.completed);
+  }
 
-  tasks.forEach((task) => {
-    if (task.checked) {
-      checked++;
-    }
+  return todos;
+}
+
+function getEmptyMessage() {
+  if (currentFilter === "active") {
+    return "남은 일정이 없어요. 모두 완료했어요!";
+  }
+
+  if (currentFilter === "completed") {
+    return "아직 완료된 일정이 없어요.";
+  }
+
+  return "아직 등록된 일정이 없어요.";
+}
+
+function updateFilterCounts() {
+  const completedTodosCount = todos.filter((todo) => todo.completed).length;
+
+  allCount.textContent = String(todos.length);
+  activeCount.textContent = String(todos.length - completedTodosCount);
+  completedCount.textContent = String(completedTodosCount);
+}
+
+function updateFilterButtons() {
+  filterButtons.forEach((button) => {
+    const isActive = button.dataset.filter === currentFilter;
+
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
   });
+}
+
+// 전체 Todo 상태를 기준으로 진행률을 계산하는 함수
+function updateProgress() {
+  const completedTodosCount = todos.filter((todo) => todo.completed).length;
 
   const percent =
-    tasks.length === 0
+    todos.length === 0
       ? 0
-      : Math.round((checked / tasks.length) * 100);
+      : Math.round((completedTodosCount / todos.length) * 100);
 
   progressText.textContent = `진행률: ${percent}%`;
   progressBar.style.width = `${percent}%`;
   progressTrack.setAttribute("aria-valuenow", String(percent));
+}
+
+function renderTodoList() {
+  todoBox.innerHTML = "";
+
+  const filteredTodos = getFilteredTodos();
+
+  if (filteredTodos.length === 0) {
+    const emptyMessage = document.createElement("p");
+    emptyMessage.className = "empty-message";
+    emptyMessage.textContent = getEmptyMessage();
+    todoBox.appendChild(emptyMessage);
+  } else {
+    filteredTodos.forEach((todo) => {
+      renderTodo(todo);
+    });
+  }
+
+  updateFilterCounts();
+  updateProgress();
 }
 
 // Todo 객체 하나를 HTML 요소로 만들어 화면에 추가하는 함수
@@ -209,10 +267,8 @@ function renderTodo(todo) {
 
       const updatedTodo = await response.json();
 
-      checkbox.checked = updatedTodo.completed;
       todo.completed = updatedTodo.completed;
-
-      updateProgress();
+      renderTodoList();
     } catch (error) {
       console.error("Todo를 수정하는 중 오류 발생:", error);
 
@@ -351,8 +407,8 @@ function renderTodo(todo) {
 
       console.log("삭제된 Todo:", deletedTodo);
 
-      todoItem.remove();
-      updateProgress();
+      todos = todos.filter((item) => item.id !== todo.id);
+      renderTodoList();
     } catch (error) {
       console.error("Todo를 삭제하는 중 오류 발생:", error);
     }
@@ -368,20 +424,12 @@ async function loadTodos() {
       throw new Error(`Todo 조회 실패: ${response.status}`);
     }
 
-    const todos = await response.json();
+    const loadedTodos = await response.json();
 
-    console.log("서버에서 가져온 Todo:", todos);
+    console.log("서버에서 가져온 Todo:", loadedTodos);
 
-    // 기존에 화면에 있던 Todo 제거
-    todoBox.innerHTML = "";
-
-    // 서버에서 가져온 Todo를 하나씩 화면에 출력
-    todos.forEach((todo) => {
-      renderTodo(todo);
-    });
-
-    // 서버 데이터 출력 후 진행률 계산
-    updateProgress();
+    todos = loadedTodos;
+    renderTodoList();
   } catch (error) {
     console.error("Todo를 불러오는 중 오류 발생:", error);
   }
@@ -393,6 +441,18 @@ newTaskInput.addEventListener("keydown", (event) => {
     addBtn.click();
   }
 });
+
+function initializeFilterButtons() {
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      currentFilter = button.dataset.filter;
+      updateFilterButtons();
+      renderTodoList();
+    });
+  });
+
+  updateFilterButtons();
+}
 
 // 추가 버튼을 누르면 새로운 Todo를 서버에 저장
 addBtn.addEventListener("click", async () => {
@@ -430,14 +490,11 @@ addBtn.addEventListener("click", async () => {
 
     console.log("서버에 추가된 Todo:", newTodo);
 
-    // 서버에서 받은 Todo를 화면에 출력
-    renderTodo(newTodo);
+    todos.push(newTodo);
+    renderTodoList();
 
-    // 입력창 비우기
     newTaskInput.value = "";
-
-    // 진행률 다시 계산
-    updateProgress();
+    newTaskInput.focus();
   } catch (error) {
     console.error("Todo를 추가하는 중 오류 발생:", error);
   }
@@ -445,4 +502,5 @@ addBtn.addEventListener("click", async () => {
 
 // 페이지가 열릴 때 서버 Todo 불러오기
 startTimeScene();
+initializeFilterButtons();
 loadTodos();
