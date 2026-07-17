@@ -1,76 +1,123 @@
 const db = require("../db");
+const {
+    isValidDateString,
+    normalizeScheduledDate,
+} = require("../utils/dateUtils");
+
+const TODO_SELECT_FIELDS = `
+    id,
+    title,
+    completed,
+    DATE_FORMAT(scheduled_date, '%Y-%m-%d') AS scheduled_date,
+    DATE_FORMAT(completed_at, '%Y-%m-%dT%H:%i:%sZ') AS completed_at,
+    created_at
+`;
+
+function formatTodo(row) {
+    return {
+        ...row,
+        completed: Boolean(row.completed),
+    };
+}
 
 // 전체 Todo 목록 조회
 async function getTodos(req, res) {
+    const { date } = req.query;
+
+    if (date !== undefined && !isValidDateString(date)) {
+        return res.status(400).json({
+            message: "date는 YYYY-MM-DD 형식의 유효한 날짜여야 합니다.",
+        });
+    }
+
     try {
-        const [rows] = await db.execute(`
-            SELECT id, title, completed, created_at
+        let sql = `
+            SELECT ${TODO_SELECT_FIELDS}
             FROM todos
-            ORDER BY id ASC
-        `);
+        `;
+        const params = [];
 
-    const todos = rows.map((row) => ({
-        ...row,
-        completed: Boolean(row.completed),
-    }));
+        if (date !== undefined) {
+            sql += " WHERE scheduled_date = ?";
+            params.push(date);
+        }
 
-    res.status(200).json(todos);
+        sql += " ORDER BY id ASC";
+
+        const [rows] = await db.execute(sql, params);
+
+        const todos = rows.map(formatTodo);
+
+        res.status(200).json(todos);
     } catch (error) {
         console.error("Todo 조회 중 DB 오류:", error);
 
         res.status(500).json({
-        message: "Todo 목록을 불러오지 못했습니다.",
+            message: "Todo 목록을 불러오지 못했습니다.",
         });
     }
 }
 
 // 새로운 Todo 추가
 async function createTodo(req, res) {
-    const { title } = req.body;
+    const body = req.body || {};
+    const { title } = body;
 
-    if (!title || !title.trim()) {
+    if (typeof title !== "string" || !title.trim()) {
         return res.status(400).json({
-        message: "title을 입력해주세요.",
+            message: "title을 입력해주세요.",
+        });
+    }
+
+    const hasScheduledDate = Object.prototype.hasOwnProperty.call(
+        body,
+        "scheduledDate"
+    );
+    const scheduledDateResult = normalizeScheduledDate(
+        hasScheduledDate ? body.scheduledDate : null
+    );
+
+    if (!scheduledDateResult.isValid) {
+        return res.status(400).json({
+            message:
+                "scheduledDate는 YYYY-MM-DD 형식의 유효한 날짜여야 합니다.",
         });
     }
 
     try {
-    const [result] = await db.execute(
-        `
-        INSERT INTO todos (title, completed)
-        VALUES (?, ?)
-        `,
-        [title.trim(), false]
-    );
+        const [result] = await db.execute(
+            `
+            INSERT INTO todos (title, completed, scheduled_date)
+            VALUES (?, ?, ?)
+            `,
+            [title.trim(), false, scheduledDateResult.value]
+        );
 
-    const [rows] = await db.execute(
-        `
-        SELECT id, title, completed, created_at
-        FROM todos
-        WHERE id = ?
-        `,
-        [result.insertId]
-    );
+        const [rows] = await db.execute(
+            `
+            SELECT ${TODO_SELECT_FIELDS}
+            FROM todos
+            WHERE id = ?
+            `,
+            [result.insertId]
+        );
 
-    const newTodo = {
-        ...rows[0],
-        completed: Boolean(rows[0].completed),
-    };
+        const newTodo = formatTodo(rows[0]);
 
-    res.status(201).json(newTodo);
+        res.status(201).json(newTodo);
     } catch (error) {
-    console.error("Todo 추가 중 DB 오류:", error);
+        console.error("Todo 추가 중 DB 오류:", error);
 
-    res.status(500).json({
-        message: "Todo 추가 중 서버 오류가 발생했습니다.",
+        res.status(500).json({
+            message: "Todo 추가 중 서버 오류가 발생했습니다.",
         });
-    } 
+    }
 }
 
 // Todo 완료 상태 수정
 async function updateTodoCompleted(req, res) {
     const todoId = Number(req.params.id);
-    const { completed } = req.body;
+    const { completed } = req.body || {};
 
     if (!Number.isInteger(todoId) || todoId <= 0) {
         return res.status(400).json({
@@ -88,10 +135,15 @@ async function updateTodoCompleted(req, res) {
         const [result] = await db.execute(
         `
         UPDATE todos
-        SET completed = ?
+        SET
+            completed = ?,
+            completed_at = CASE
+                WHEN ? = TRUE THEN UTC_TIMESTAMP()
+                ELSE NULL
+            END
         WHERE id = ?
         `,
-        [completed, todoId]
+        [completed, completed, todoId]
     );
 
     if (result.affectedRows === 0) {
@@ -102,17 +154,14 @@ async function updateTodoCompleted(req, res) {
 
     const [rows] = await db.execute(
         `
-        SELECT id, title, completed, created_at
+        SELECT ${TODO_SELECT_FIELDS}
         FROM todos
         WHERE id = ?
         `,
         [todoId]
     );
 
-    const updatedTodo = {
-        ...rows[0],
-        completed: Boolean(rows[0].completed),
-    };
+    const updatedTodo = formatTodo(rows[0]);
 
     res.status(200).json(updatedTodo);
     } catch (error) {
@@ -127,7 +176,7 @@ async function updateTodoCompleted(req, res) {
 // Todo 제목 수정
 async function updateTodoTitle(req, res) {
     const todoId = Number(req.params.id);
-    const { title } = req.body;
+    const { title } = req.body || {};
 
     // URL로 받은 ID가 올바른 숫자인지 검사
     if (!Number.isInteger(todoId) || todoId <= 0) {
@@ -157,7 +206,7 @@ async function updateTodoTitle(req, res) {
         // 수정 결과 확인
         const [rows] = await db.execute(
             `
-            SELECT id, title, completed, created_at
+            SELECT ${TODO_SELECT_FIELDS}
             FROM todos
             WHERE id = ?
             `,
@@ -171,10 +220,7 @@ async function updateTodoTitle(req, res) {
             });
         }
 
-        const updatedTodo = {
-            ...rows[0],
-            completed: Boolean(rows[0].completed),
-        };
+        const updatedTodo = formatTodo(rows[0]);
 
         res.status(200).json(updatedTodo);
     } catch (error) {
@@ -182,6 +228,62 @@ async function updateTodoTitle(req, res) {
 
         res.status(500).json({
             message: "Todo 제목 수정 중 서버 오류가 발생했습니다.",
+        });
+    }
+}
+
+// Todo 예정 날짜 수정
+async function updateTodoDate(req, res) {
+    const todoId = Number(req.params.id);
+
+    if (!Number.isInteger(todoId) || todoId <= 0) {
+        return res.status(400).json({
+            message: "올바른 Todo ID를 입력해주세요.",
+        });
+    }
+
+    const scheduledDateResult = normalizeScheduledDate(
+        req.body?.scheduledDate
+    );
+
+    if (!scheduledDateResult.isValid) {
+        return res.status(400).json({
+            message:
+                "scheduledDate는 YYYY-MM-DD 형식의 유효한 날짜여야 합니다.",
+        });
+    }
+
+    try {
+        await db.execute(
+            `
+            UPDATE todos
+            SET scheduled_date = ?
+            WHERE id = ?
+            `,
+            [scheduledDateResult.value, todoId]
+        );
+
+        const [rows] = await db.execute(
+            `
+            SELECT ${TODO_SELECT_FIELDS}
+            FROM todos
+            WHERE id = ?
+            `,
+            [todoId]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({
+                message: "해당 Todo를 찾을 수 없습니다.",
+            });
+        }
+
+        res.status(200).json(formatTodo(rows[0]));
+    } catch (error) {
+        console.error("Todo 예정 날짜 수정 중 DB 오류:", error);
+
+        res.status(500).json({
+            message: "Todo 예정 날짜 수정 중 서버 오류가 발생했습니다.",
         });
     }
 }
@@ -199,7 +301,7 @@ async function deleteTodo(req, res) {
     try {
     const [rows] = await db.execute(
         `
-        SELECT id, title, completed, created_at
+        SELECT ${TODO_SELECT_FIELDS}
         FROM todos
         WHERE id = ?
         `,
@@ -220,10 +322,7 @@ async function deleteTodo(req, res) {
         [todoId]
     );
 
-    const deletedTodo = {
-        ...rows[0],
-        completed: Boolean(rows[0].completed),
-    };
+    const deletedTodo = formatTodo(rows[0]);
 
     res.status(200).json(deletedTodo);
     } catch (error) {
@@ -240,5 +339,6 @@ module.exports = {
     createTodo,
     updateTodoCompleted,
     updateTodoTitle,
+    updateTodoDate,
     deleteTodo,
 };

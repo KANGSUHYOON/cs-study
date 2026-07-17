@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const db = require("./db");
 const todoRoutes = require("./routes/todoRoutes");
+const calendarRoutes = require("./routes/calendarRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -10,8 +11,9 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Todo API 라우터 연결
+// API 라우터 연결
 app.use("/todos", todoRoutes);
+app.use("/calendar", calendarRoutes);
 
 app.get("/", (req, res) => {
   res.send("공부 TODO 서버가 정상적으로 실행 중입니다!");

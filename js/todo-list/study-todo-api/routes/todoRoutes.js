@@ -5,6 +5,7 @@ const {
     createTodo,
     updateTodoCompleted,
     updateTodoTitle,
+    updateTodoDate,
     deleteTodo,
 } = require("../controllers/todoController");
 
@@ -16,11 +17,14 @@ router.get("/", getTodos);
 // POST /todos
 router.post("/", createTodo);
 
-// PATCH /todos/:id
-router.patch("/:id", updateTodoCompleted);
-
 // Todo 제목 수정: PATCH /todos/:id/title
 router.patch("/:id/title", updateTodoTitle);
+
+// Todo 예정 날짜 수정: PATCH /todos/:id/date
+router.patch("/:id/date", updateTodoDate);
+
+// PATCH /todos/:id
+router.patch("/:id", updateTodoCompleted);
 
 // DELETE /todos/:id
 router.delete("/:id", deleteTodo);

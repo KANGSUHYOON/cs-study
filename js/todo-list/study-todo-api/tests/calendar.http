@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:3000
+@todoId = 1
+
+### 아래 Todo ID는 실제 데이터에 존재하는 ID로 바꿔서 테스트하세요.
+
+### 1. 날짜가 있는 Todo 생성
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+  "title": "캘린더 API 테스트",
+  "scheduledDate": "2026-07-17"
+}
+
+### 2. 날짜 없는 Todo 생성(기존 요청 호환성)
+POST http://localhost:3000/todos
+Content-Type: application/json
+
+{
+  "title": "날짜 없는 기존 방식 Todo"
+}
+
+### 3. 특정 날짜 Todo 조회
+GET http://localhost:3000/todos?date=2026-07-17
+
+### 4. 잘못된 날짜 조회
+GET http://localhost:3000/todos?date=2026-02-30
+
+### 5. Todo 날짜 변경
+PATCH http://localhost:3000/todos/{{todoId}}/date
+Content-Type: application/json
+
+{
+  "scheduledDate": "2026-07-20"
+}
+
+### 6. Todo 날짜 제거
+PATCH http://localhost:3000/todos/{{todoId}}/date
+Content-Type: application/json
+
+{
+  "scheduledDate": null
+}
+
+### 7. Todo 완료 처리(completed_at 기록)
+PATCH http://localhost:3000/todos/{{todoId}}
+Content-Type: application/json
+
+{
+  "completed": true
+}
+
+### 8. Todo 체크 해제(completed_at을 null로 변경)
+PATCH http://localhost:3000/todos/{{todoId}}
+Content-Type: application/json
+
+{
+  "completed": false
+}
+
+### 9. 월별 캘린더 집계 조회
+GET http://localhost:3000/calendar?year=2026&month=7
+
+### 10. 잘못된 month 요청
+GET http://localhost:3000/calendar?year=2026&month=13
